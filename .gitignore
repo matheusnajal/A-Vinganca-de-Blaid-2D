@@ -73,7 +73,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
+/Logs/
 /A-Vinganca-De-Blaid-2D.sln
-/A-Vinganca-De-Blaid-2D.sln/Assembly-CSharp.csproj
-
-/Logs
+/Assembly-CSharp.csproj
