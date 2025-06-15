@@ -25,6 +25,15 @@ public class PlayerBehavior : MonoBehaviour
     {
         float moveDirection = GameManager.Instance.InputManager.Movement;
         _rigidbody.linearVelocity = new Vector2(moveDirection * Speed, _rigidbody.linearVelocity.y);
+
+        if (moveDirection < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (moveDirection > 0)
+        {
+            transform.localScale = Vector3.one;
+        }
     }
 
     private void HandleJump()
