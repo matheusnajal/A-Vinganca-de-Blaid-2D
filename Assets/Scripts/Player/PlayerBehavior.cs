@@ -1,31 +1,47 @@
+using System;
 using UnityEngine;
 
 public class PlayerBehavior : MonoBehaviour
 {
-    [SerializeField] private float Speed = 5;
+    [SerializeField] private float moveSpeed = 5;
     [SerializeField] private float jumpForce = 3;
+    
+    [Header("Propriedades de ataque")]
+    [SerializeField] private float attackRange = 1f;
+    [SerializeField] private Transform attackPosition;
+    [SerializeField] private LayerMask attackLayer;
+
+    private float moveDirection;
+
     private Rigidbody2D _rigidbody;
-    private IsGroundedChecker isGroundedChecker;
+    private IsGroundedChecker isGroundedCheker;
 
     private void Awake()
-    {
+    {        
         _rigidbody = GetComponent<Rigidbody2D>();
-        isGroundedChecker = GetComponent<IsGroundedChecker>();
+        isGroundedCheker = GetComponent<IsGroundedChecker>();
+        GetComponent<Health>().OnDead += HandlePlayerDeath;
     }
 
     private void Start()
     {
-        if (GameManager.Instance != null && GameManager.Instance.InputManager != null)
-        {
-            GameManager.Instance.InputManager.OnJump += HandleJump;
-        }
+        GameManager.Instance.InputManager.OnJump += HandleJump;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        float moveDirection = GameManager.Instance.InputManager.Movement;
-        _rigidbody.linearVelocity = new Vector2(moveDirection * Speed, _rigidbody.linearVelocity.y);
+        MovePlayer();
+        FlipSpriteAccordingToMoveDirection();
+    }
 
+    private void MovePlayer()
+    {
+        moveDirection = GameManager.Instance.InputManager.Movement;
+        transform.Translate(moveDirection * Time.deltaTime * moveSpeed, 0, 0);
+    }
+
+    private void FlipSpriteAccordingToMoveDirection()
+    {
         if (moveDirection < 0)
         {
             transform.localScale = new Vector3(-1, 1, 1);
@@ -38,17 +54,38 @@ public class PlayerBehavior : MonoBehaviour
 
     private void HandleJump()
     {
-        if (isGroundedChecker.IsGrounded())
+        if (isGroundedCheker.IsGrounded() == false) return;
+        _rigidbody.linearVelocity += Vector2.up * jumpForce;
+    }
+
+    private void HandlePlayerDeath()
+    {
+        GetComponent<Collider2D>().enabled = false;
+        _rigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+        GameManager.Instance.InputManager.DisablePlayerInput();
+    }
+
+    private void Attack()
+    {
+        Collider2D[] hittedEnemies = 
+            Physics2D.OverlapCircleAll(attackPosition.position, attackRange, attackLayer);
+        print("Making enemy take damage");
+        print(hittedEnemies.Length);
+        
+        foreach (Collider2D hittedEnemy in hittedEnemies)
         {
-            _rigidbody.linearVelocity = new Vector2(_rigidbody.linearVelocity.x, jumpForce);
+            print("Cheking enemy");
+            if (hittedEnemy.TryGetComponent(out Health enemyHealth))
+            {
+                print("Getting damage");
+                enemyHealth.TakeDamage();
+            }
         }
     }
 
-    private void OnDestroy()
+    private void OnDrawGizmos()
     {
-        if (GameManager.Instance != null && GameManager.Instance.InputManager != null)
-        {
-            GameManager.Instance.InputManager.OnJump -= HandleJump;
-        }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(attackPosition.position, attackRange);
     }
 }
