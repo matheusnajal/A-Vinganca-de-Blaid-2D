@@ -22,6 +22,7 @@ public abstract class BaseEnemy : MonoBehaviour
     
     private void HandleDeath()
     {
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.EnemyDeath);
         animator.SetTrigger("dead");
         StartCoroutine(DestroyEnemy(2));
     }

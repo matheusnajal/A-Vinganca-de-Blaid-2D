@@ -4,6 +4,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public AudioManager Audiomanager;
+
     public InputManager InputManager { get; private set; }
 
     private void Awake()

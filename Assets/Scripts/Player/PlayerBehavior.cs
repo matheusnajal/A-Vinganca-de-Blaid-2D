@@ -15,12 +15,16 @@ public class PlayerBehavior : MonoBehaviour
 
     private Rigidbody2D _rigidbody;
     private IsGroundedChecker isGroundedCheker;
+    private Health health;
 
     private void Awake()
-    {        
+    {
         _rigidbody = GetComponent<Rigidbody2D>();
         isGroundedCheker = GetComponent<IsGroundedChecker>();
-        GetComponent<Health>().OnDead += HandlePlayerDeath;
+        health = GetComponent<Health>();
+
+        health.OnDead += HandlePlayerDeath;
+        health.OnHurt += PlayHurtSound;
     }
 
     private void Start()
@@ -55,28 +59,42 @@ public class PlayerBehavior : MonoBehaviour
     private void HandleJump()
     {
         if (isGroundedCheker.IsGrounded() == false) return;
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.PlayerJump);
         _rigidbody.linearVelocity += Vector2.up * jumpForce;
+    }
+
+    private void PlayHurtSound()
+    {
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.PlayerHurt);
     }
 
     private void HandlePlayerDeath()
     {
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.PlayerDeath);
         GetComponent<Collider2D>().enabled = false;
         _rigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
         GameManager.Instance.InputManager.DisablePlayerInput();
     }
 
+    private void PlayWalkSound()
+    {
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.PlayerWalk);
+    }
+
     private void Attack()
     {
-        Collider2D[] hittedEnemies = 
+        GameManager.Instance.Audiomanager.PlaySFX(SFX.PlayerAttack);
+        Collider2D[] hittedEnemies =
             Physics2D.OverlapCircleAll(attackPosition.position, attackRange, attackLayer);
         print("Making enemy take damage");
         print(hittedEnemies.Length);
-        
+
         foreach (Collider2D hittedEnemy in hittedEnemies)
         {
             print("Cheking enemy");
             if (hittedEnemy.TryGetComponent(out Health enemyHealth))
             {
+                GameManager.Instance.Audiomanager.PlaySFX(SFX.EnemyHurt);
                 print("Getting damage");
                 enemyHealth.TakeDamage();
             }

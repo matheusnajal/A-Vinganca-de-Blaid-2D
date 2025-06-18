@@ -22,6 +22,7 @@ public class MeleeEnemy : BaseEnemy
         {
             animator.SetTrigger("attack");
             AttackPlayer();
+            GameManager.Instance.Audiomanager.PlaySFX(SFX.EnemyAttack);
         }
     }
 
