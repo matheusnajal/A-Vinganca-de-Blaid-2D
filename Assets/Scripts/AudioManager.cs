@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum SFX
@@ -15,6 +14,7 @@ public enum SFX
     EnemyAttack,
     EnemyHurt,
     EnemyDeath,
+    ButtonClick,
     }
 
     [Serializable]
